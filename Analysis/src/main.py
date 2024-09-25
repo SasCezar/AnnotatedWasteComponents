@@ -4,7 +4,7 @@ import pandas as pd
 from stats.simple import SimpleStats
 
 if __name__ == '__main__':
-    projects_dir = Path("/home/sasce/PycharmProjects/AnnotatedWasteComponents/ComponentAnnotator/data/annotated")
+    projects_dir = Path("/WasteComponents/data/annotated")
     df = []
     for project_path in projects_dir.iterdir():
         project = json.load(project_path.open())

@@ -1,7 +1,7 @@
 services:
   pipeline:     # This is our stuff
     build:
-      context: ./ComponentAnnotator
+      context: WasteAnnotator
       dockerfile: ./docker/Dockerfile
     ports:
       - "8669:8669"
@@ -9,8 +9,8 @@ services:
     tty: true
     volumes:
       - type: bind
-        source: ./ComponentAnnotator
-        target: /component-annotator
+        source: ./WasteAnnotator
+        target: /waste-annotator
     links:
       - 'api:auto-fl'
 
@@ -46,7 +46,7 @@ services:
         - "4432:5432"
     volumes:
       - ./pipelinedb:/var/lib/postgresql/data
-      - ./ComponentAnnotator/docker/sql:/docker-entrypoint-initdb.d/
+      - ./WasteAnnotator/docker/sql:/docker-entrypoint-initdb.d/
 
   db:
     image: postgres

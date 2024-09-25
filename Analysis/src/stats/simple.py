@@ -1,3 +1,8 @@
+from collections import Counter
+
+import numpy as np
+
+
 class SimpleStats:
     @staticmethod
     def stats(project: dict):
@@ -12,4 +17,7 @@ class SimpleStats:
             "distinct_labels": len({project[file]["label"] for file in project})
         }
 
+
+        stats["avg_file_component"] = np.mean(list(Counter([project[file]["component"] for file in project]).values()))
+        stats["std_file_component"] = np.std(list(Counter([project[file]["component"] for file in project]).values()))
         return stats

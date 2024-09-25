@@ -1,9 +1,7 @@
 <br />
 <p align="center">
-  <h1 align="center">Component Annotation Automated Pipeline for Abandoned Projects</h1>
-
-  <p align="center">
-  </p>
+    <h1 align="center">Component Annotation Automated Pipeline for Abandoned Projects</h1>
+    <p align="center"></p>
 </p>
 
 ## About The Project
@@ -18,8 +16,6 @@ that they are comprised of.
 - [Docker v4.25](https://www.docker.com/get-started) or higher.
 
 ## Running
-<!--
--->
 This project uses Docker. You can run the application as follows:
 
 - Run the docker-compose files to run all relevant services (`docker compose up` or `docker compose up --build`).
@@ -30,4 +26,5 @@ The dockerfile for the pipeline service runs a `main.py` file. To run the pipeli
 
 ## License
 
-This project is licensed under the MIT License - see the [license](./license.txt) file for details.
+#### License Update
+This repository was previously licensed under the MIT License. However, it includes code that is licensed under the GNU General Public License (GPL). As a result, the entire project is now licensed under the GPL 3. All previous and future versions must comply with this license.
