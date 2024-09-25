@@ -24,4 +24,4 @@ LOGS_PATH=$7
               metrics.smellCharacteristics=none \
               metrics.indexCalculators=none \
               detectors.smellDetectors=none \
-              -e --startDate 1-1-1 --endDate 2024-12-31 --intervalDays 28  2>&1 |& tee outfile $LOGS_PATH/$PROJECT_NAME.log
+              2>&1 |& tee outfile $LOGS_PATH/$PROJECT_NAME.log

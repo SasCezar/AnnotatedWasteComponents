@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 from loguru import logger
 from requests import HTTPError
+import traceback
 
 from componentextractor.componentextractor import ComponentExtractor
 from projectextractor.projectextractor import ProjectExtractor
@@ -117,8 +118,10 @@ class ComponentAnnotator:
             try:
                 df_components_list.append(self.annotate_project(project['name'], project['html_url']))
             except RuntimeError as exc:
+                traceback.print_stack()
                 logger.error(f"{exc}")
             except ValueError as exc:
+                traceback.print_stack()
                 logger.error(f"{exc}")
 
         return df_components_list

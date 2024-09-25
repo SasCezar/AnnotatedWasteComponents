@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   pipeline:     # This is our stuff
     build:
@@ -11,7 +10,7 @@ services:
     volumes:
       - type: bind
         source: ./ComponentAnnotator
-        target: /ComponentAnnotator/component-annotator
+        target: /component-annotator
     links:
       - 'api:auto-fl'
 
@@ -26,8 +25,9 @@ services:
     tty: true        # docker run -t
     volumes:
       - type: bind
-        source: /AutoFL
-        target: /AutoFL/autofl
+        source: ./AutoFL
+        target: /autofl
+
 
   # Separate database for storing component labelling.
   db_pipeline:
@@ -43,7 +43,7 @@ services:
       timeout: 5s
       retries: 10
     ports:
-        - "4232:4232"
+        - "4432:5432"
     volumes:
       - ./pipelinedb:/var/lib/postgresql/data
       - ./ComponentAnnotator/docker/sql:/docker-entrypoint-initdb.d/
@@ -72,7 +72,7 @@ services:
     ports:
       - "8080:8080"
 
-  # ui service not necessarily needed
+# ui service not necessarily needed
 #  ui:
 #    build:
 #      context: ./AutoFL/autofl-ui/

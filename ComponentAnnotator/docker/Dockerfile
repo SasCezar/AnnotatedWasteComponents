@@ -32,8 +32,8 @@ COPY . .
 
 # (Maybe do this somewhere else later)
 # Make sure that scripts have execute permission
-RUN chmod +x /component-annotator/src/arcan/arcan.sh
-RUN chmod +x /component-annotator/src/arcan/run-arcan.sh
+#RUN chmod +x /component-annotator/src/arcan/arcan.sh
+#RUN chmod +x /component-annotator/src/arcan/run-arcan.sh
 
 EXPOSE 8669
 HEALTHCHECK CMD curl --fail http://localhost:8669/_stcore/health

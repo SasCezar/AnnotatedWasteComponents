@@ -1,6 +1,7 @@
 import pandas as pd
 from sqlalchemy import create_engine
 from loguru import logger
+import json
 
 class ComponentAggregator:
     def __init__(self):
@@ -158,6 +159,9 @@ class ComponentAggregator:
             df_project['case'] = "success"
 
         df_project['projectname'] = self.project_name
-        df_project.to_sql(self.project_name, self.engine, if_exists='replace', index=False)
-        df_project.to_csv(f'output_{self.project_name}.csv', index=False)
+        # df_project.to_sql(self.project_name, self.engine, if_exists='replace', index=False)
+        res = df_project.set_index('path').T.to_dict()
+        with open(f'./data/annotated/{self.project_name}.json', 'w') as f:
+            json.dump(res, f, indent=4)
+
         logger.info(f"Wrote component annotations for {self.project_name} to database.")
