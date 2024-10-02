@@ -1,11 +1,14 @@
+from typing import List
 from urllib.error import HTTPError
 
 from loguru import logger
 
-from componentaggregator.componentaggregator import ComponentAggregator
-from componentannotator.componentannotator import ComponentAnnotator
-from componentextractor.componentextractor import ComponentExtractor
-from projectextractor.projectextractor import ProjectExtractor
+from projectexporter import ProjectExporter
+from projectextractor import ProjectExtractor
+
+from componentannotator import ComponentAnnotator
+from componentextractor import CommunityExtractor
+from componentextractor import ComponentExtractor
 
 
 class CompletePipeline:
@@ -19,7 +22,8 @@ class CompletePipeline:
                  project_extractor: ProjectExtractor,
                  component_extractor: ComponentExtractor,
                  component_annotator: ComponentAnnotator,
-                 component_aggregator: ComponentAggregator,
+                 community_extractor: CommunityExtractor,
+                 project_exporter: List[ProjectExporter],
                  language):
         """
         Initializes the ComponentAnnotator with default values for the ProjectExtractor.
@@ -30,7 +34,8 @@ class CompletePipeline:
         self.project_extractor: ProjectExtractor = project_extractor
         self.component_extractor: ComponentExtractor = component_extractor
         self.component_annotator: ComponentAnnotator = component_annotator
-        self.component_aggregator: ComponentAggregator = component_aggregator
+        self.community_extractor: CommunityExtractor = community_extractor
+        self.project_exporter: List[ProjectExporter] = project_exporter
         self.language: str = language
 
         logger.info(f"Initialized ComponentAnnotator (project programming language -> {language})")
@@ -44,21 +49,19 @@ class CompletePipeline:
             logger.error("Failed to retrieve abandoned projects from GitHub")
 
         for project in abandoned_projects:
-            project_name = project["name"]
-            project_url = project["html_url"]
+
             try:
-                file_annotation = self.component_annotator.annotate_project(project_name, project_url)
+                project = self.component_extractor.dependency_graph(project)
 
+                project = self.component_annotator.annotate_project(project)
 
-                components = self.component_extractor.set_project(project_name, project_url).infomap_components()
-                # component_extractor handles arcan failed exceptions.
-                dep_graph = self.component_extractor.dependency_graph()
+                logger.info(f"Finished annotating components of project `{project.name}`")
 
-                self.component_aggregator.set_state(components, file_annotation, dep_graph, project_name)
-
-                # Dataframe contains component identifier and component label for each file.
-                df_components = self.component_aggregator.create_aggregate()
-                logger.info(f"Finished annotating components of project `{project_name}`")
+                for exporter in self.project_exporter:
+                    exporter.export(project)
             except RuntimeError as exc:
+                logger.error(f"{exc}")
+                continue
+            except ValueError as exc:
                 logger.error(f"{exc}")
                 continue

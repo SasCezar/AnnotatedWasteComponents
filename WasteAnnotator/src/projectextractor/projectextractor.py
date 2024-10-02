@@ -2,6 +2,8 @@ from typing import List, Dict, Tuple
 
 import requests
 
+from entities.entities import Project
+
 
 def print_structure(repo_url: str):
     """
@@ -46,7 +48,7 @@ class ProjectExtractor(object):
         self.language = language
         self.only_archived = only_archived
 
-    def find_abandoned_projects(self, amount: int = 10) -> List[Dict]:
+    def find_abandoned_projects(self, amount: int = 10) -> List[Project]:
         """
         Retrieves abandoned projects.
 
@@ -60,10 +62,19 @@ class ProjectExtractor(object):
 
         response = requests.get(self.base_url, params=params, headers=headers)
 
+        projects = []
         if response.status_code == 200:
-            return response.json().get("items", [])
+            res = response.json().get("items", [])
+            for repo in res:
+                projects.append(Project(name=repo["full_name"].replace("/", "|"), remote=repo["html_url"], description=repo["description"],
+                                        stargazers_count=repo["stargazers_count"], language=repo["language"],
+                                        archived=repo["archived"], pushed_at=repo["pushed_at"]))
+
         else:
             response.raise_for_status()
+
+
+        return projects
 
     def _create_request(self, amount: int) -> Tuple[Dict, Dict]:
         """
