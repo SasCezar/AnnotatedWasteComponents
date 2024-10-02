@@ -1,5 +1,5 @@
 services:
-  pipeline:     # This is our stuff
+  pipeline: # This is our stuff
     build:
       context: WasteAnnotator
       dockerfile: ./docker/Dockerfile
@@ -15,9 +15,7 @@ services:
       - 'api:auto-fl'
 
   api:
-    build:
-      context: ./AutoFL
-      dockerfile: ./docker/Dockerfile
+    image: cezarsas/autofl:latest
     ports:
       - "8888:8888"
       - "8000:8000"
@@ -25,28 +23,29 @@ services:
     tty: true        # docker run -t
     volumes:
       - type: bind
-        source: ./AutoFL
-        target: /autofl
+        source: ./WasteAnnotator/data/repository
+        target: /autofl/data/repository
 
 
   # Separate database for storing component labelling.
-  db_pipeline:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_DB: "pipeline"
-      POSTGRES_USER: "pipeline_user"
-      POSTGRES_PASSWORD: "pipeline_pw"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 1s
-      timeout: 5s
-      retries: 10
-    ports:
-        - "4432:5432"
-    volumes:
-      - ./pipelinedb:/var/lib/postgresql/data
-      - ./WasteAnnotator/docker/sql:/docker-entrypoint-initdb.d/
+  # Optional, not necessarily needed. We opt to use JSON files instead.
+  #  db_pipeline:
+  #    image: postgres:16.4-bullseye
+  #    restart: always
+  #    environment:
+  #      POSTGRES_DB: "pipeline"
+  #      POSTGRES_USER: "pipeline_user"
+  #      POSTGRES_PASSWORD: "pipeline_pw"
+  #    healthcheck:
+  #      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+  #      interval: 1s
+  #      timeout: 5s
+  #      retries: 10
+  #    ports:
+  #        - "4432:5432"
+  #    volumes:
+  #      - ./pipelinedb:/var/lib/postgresql/data
+  #      - ./WasteAnnotator/docker/sql:/docker-entrypoint-initdb.d/
 
   db:
     image: postgres
@@ -61,7 +60,7 @@ services:
       timeout: 5s
       retries: 10
     ports:
-        - "5432:5432"
+      - "5432:5432"
     volumes:
       - ./auto_fl_db:/var/lib/postgresql/data
       - ./AutoFL/docker/sql:/docker-entrypoint-initdb.d/
@@ -74,16 +73,10 @@ services:
 
 # ui service not necessarily needed
 #  ui:
-#    build:
-#      context: ./AutoFL/autofl-ui/
-#      dockerfile: ./docker/Dockerfile
+#    image: cezarsas/autofl-ui:latest
 #    ports:
 #      - "8501:8501"
 #    stdin_open: true # docker run -i
 #    tty: true        # docker run -t
-#    volumes:
-#      - type: bind
-#        source: /AutoFL/autofl-ui/
-#        target: /AutoFL/autofl-ui
 #    links:
 #      - 'api:auto-fl'

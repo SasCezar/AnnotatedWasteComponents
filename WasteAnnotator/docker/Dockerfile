@@ -1,5 +1,5 @@
 # Use the official Python image as a base image
-FROM python:3.10 as python-base
+FROM python:3.10 AS python-base
 
 # Set the working directory in the container
 RUN mkdir component-annotator
@@ -22,7 +22,7 @@ RUN apt-get update && \
 ENV PYTHONPATH=/waste-annotator/src
 
 # Stage 2:
-FROM python-base as final
+FROM python-base AS final
 
 # Set the working directory in the container
 WORKDIR /waste-annotator
