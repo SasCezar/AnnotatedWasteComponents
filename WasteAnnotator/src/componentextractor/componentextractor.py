@@ -9,19 +9,6 @@ import shlex
 from entities import Project, GraphModel
 
 
-def check_status(path) -> bool:
-    """
-    Checks if the project has already been processed.
-
-    Args:
-        path: The path to check.
-
-    Returns:
-        bool: True if the project has been processed; False otherwise.
-    """
-    return exists(path)
-
-
 def arcan_language_str(language: str) -> str:
     """
     Returns the language string that is compatible with Arcan.

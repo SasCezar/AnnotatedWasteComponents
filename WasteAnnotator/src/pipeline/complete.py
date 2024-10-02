@@ -43,6 +43,7 @@ class CompletePipeline:
     def run(self, num_proj: int = 10):
         abandoned_projects = []
         try:
+            logger.info("Starting to retrieve abandoned projects from GitHub")
             abandoned_projects = self.project_extractor.find_abandoned_projects(num_proj)
             logger.info("Finished retrieving abandoned projects from GitHub")
         except HTTPError as exc:
@@ -51,14 +52,25 @@ class CompletePipeline:
         for project in abandoned_projects:
 
             try:
+                logger.info(f"Starting to extract project dependency graph `{project.name}`")
                 project = self.component_extractor.dependency_graph(project)
+                logger.info(f"Finished extracting dependency graph for project `{project.name}`")
 
+                logger.info(f"Starting to annotate components of project `{project.name}`")
                 project = self.component_annotator.annotate_project(project)
-
                 logger.info(f"Finished annotating components of project `{project.name}`")
 
+                logger.info(f"Starting to extract community information for project `{project.name}`")
+                project = self.community_extractor.extract(project)
+                logger.info(f"Finished extracting community information for project `{project.name}`")
+
+                logger.info(f"Starting to export project `{project.name}`")
                 for exporter in self.project_exporter:
+                    logger.info(f"Exporting project `{project.name}` using {exporter.__class__.__name__}")
                     exporter.export(project)
+                logger.info(f"Finished exporting project `{project.name}`")
+
+
             except RuntimeError as exc:
                 logger.error(f"{exc}")
                 continue
