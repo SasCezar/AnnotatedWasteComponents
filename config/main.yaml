@@ -1,0 +1,19 @@
+# @package _global_
+
+# Used to override the defaults configuration of AutoFL
+defaults:
+  - _self_
+  - local: docker
+  - taxonomy: gitranking
+  - annotator: default
+  - version_strategy: latest
+  - dataloader: postgres
+  - writer: postgres
+
+package_annotation: True
+project_annotation: True
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
