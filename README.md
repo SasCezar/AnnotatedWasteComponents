@@ -1,4 +1,3 @@
-"""
 <p align="center">
   <h1 align="center">WasteAnnotator: Automated Component Annotation Pipeline</h1>
 </p>
