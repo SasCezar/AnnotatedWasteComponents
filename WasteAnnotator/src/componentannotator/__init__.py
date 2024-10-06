@@ -1,1 +1,0 @@
-from .componentannotator import ComponentAnnotator

@@ -25,6 +25,10 @@ class File(BaseModel):
 
 
 class GraphModel(BaseModel):
+    """
+    Class defining a graph. Each graph has a list of nodes and a list of edges.
+    It is used to represent the dependency graph of a project in a format that can be serialized.
+    """
     nodes: List[Any]
     edges: List[Tuple[Any, Any, Dict[str, Any]]]
 
@@ -47,7 +51,9 @@ class GraphModel(BaseModel):
 
 class Project(BaseModel):
     """
-    Class defining a project. Each project has a name, a remote (url) and a list of files.
+    Class defining a project. Each project has a name, a remote, a description, a number of stargazers, a language,
+    a flag indicating if it is archived, a date of last push, a list of files, a dependency graph and a list of
+    communities.
     """
     name: str
     remote: str

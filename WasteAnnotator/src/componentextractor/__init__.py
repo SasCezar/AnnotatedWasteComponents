@@ -1,2 +1,0 @@
-from .communityextractor import CommunityExtractor
-from .componentextractor import ComponentExtractor

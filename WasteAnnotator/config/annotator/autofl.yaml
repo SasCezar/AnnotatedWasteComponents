@@ -1,0 +1,2 @@
+_target_: annotator.autofl.AutoFLAnnotator
+endpoint: "http://auto-fl:8000/label/files"

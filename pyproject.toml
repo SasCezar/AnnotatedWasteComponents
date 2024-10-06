@@ -26,6 +26,8 @@ cdlib = "^0.4.0"
 wurlitzer = "^3.0.3"
 beautifulsoup4 = "^4.12.3"
 selenium = "^4.16.0"
+hydra-core = "^1.3.2"
+bayanpy = "^0.7.7"
 
 [build-system]
 requires = ["poetry-core"]

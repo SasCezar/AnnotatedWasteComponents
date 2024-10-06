@@ -1,0 +1,6 @@
+# @package community
+defaults:
+  - louvain
+  - infomap
+
+force_run: false

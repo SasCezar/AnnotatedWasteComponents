@@ -1,0 +1,4 @@
+# @package exporter.json
+_target_: exporter.JSONProjectExporter
+out_dir: ${out_path}/annotated/
+exclude_keys: [ ]

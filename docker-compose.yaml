@@ -1,5 +1,5 @@
 services:
-  pipeline:
+  waste_annotator:
     build:
       context: WasteAnnotator
       dockerfile: ./docker/Dockerfile
@@ -16,10 +16,9 @@ services:
       - type: bind
         source: ./data
         target: /waste-annotator/data
-    links:
-      - 'api:auto-fl'
 
-  api:
+
+  auto-fl:
     image: cezarsas/autofl:latest
     ports:
       - "8888:8888"

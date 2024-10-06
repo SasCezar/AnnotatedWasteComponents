@@ -1,0 +1,7 @@
+# @package _global_
+base_path: /home/sasce/PycharmProjects/AnnotatedWasteComponents/WasteAnnotator
+data_path: /home/sasce/PycharmProjects/AnnotatedWasteComponents/data
+raw_data_path: ${data_path}/raw
+repository_path: ${raw_data_path}/repository
+test_data_path: ${data_path}/test
+out_path: ${data_path}/
