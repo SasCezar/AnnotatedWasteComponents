@@ -4,20 +4,20 @@ import hydra
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 
-from annotator import AutoFLAnnotator
+from annotator import Annotator
 from community import CommunityExtractor
-from graphextractor import ArcanGraphExtractor
+from exporter import ProjectExporter
+from finder import ProjectFinder
+from graphextractor.interface import GraphExtractor
 from pipeline import CompletePipeline
-from exporter import JSONProjectExporter, ProjectExporter
-from finder import GitHubFinder
 
 
 @hydra.main(config_path="../config/", config_name="main.yaml", version_base='1.3')
 def run(cfg: DictConfig):
-    finder: GitHubFinder = instantiate(cfg.finder)
-    graph_extractor: ArcanGraphExtractor = instantiate(cfg.graphextractor)
-    semantic_annotator = instantiate(cfg.annotator)
-    community_extractor = instantiate(cfg.community)
+    finder: ProjectFinder = instantiate(cfg.finder)
+    graph_extractor: GraphExtractor = instantiate(cfg.graphextractor)
+    semantic_annotator: Annotator = instantiate(cfg.annotator)
+    community_extractor: CommunityExtractor = instantiate(cfg.community)
     exporter: List[ProjectExporter] = instantiate(cfg.exporter)
     CompletePipeline(
         finder,

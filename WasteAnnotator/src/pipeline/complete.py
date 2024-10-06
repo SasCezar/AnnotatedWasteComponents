@@ -3,12 +3,11 @@ from urllib.error import HTTPError
 
 from loguru import logger
 
-from exporter import ProjectExporter
-from finder import GitHubFinder
-
-from annotator import AutoFLAnnotator
+from annotator import Annotator
 from community import CommunityExtractor
-from graphextractor import ArcanGraphExtractor
+from exporter import ProjectExporter
+from finder import ProjectFinder
+from graphextractor.interface import GraphExtractor
 
 
 class CompletePipeline:
@@ -17,9 +16,9 @@ class CompletePipeline:
     """
 
     def __init__(self,
-                 project_finder: GitHubFinder,
-                 graph_extractor: ArcanGraphExtractor,
-                 semantic_annotator: AutoFLAnnotator,
+                 project_finder: ProjectFinder,
+                 graph_extractor: GraphExtractor,
+                 semantic_annotator: Annotator,
                  community_extractor: CommunityExtractor,
                  project_exporter: List[ProjectExporter]
                  ):
@@ -33,9 +32,9 @@ class CompletePipeline:
             project_exporter:
         """
 
-        self.project_finder: GitHubFinder = project_finder
-        self.graph_extractor: ArcanGraphExtractor = graph_extractor
-        self.semantic_annotator: AutoFLAnnotator = semantic_annotator
+        self.project_finder: ProjectFinder = project_finder
+        self.graph_extractor: GraphExtractor = graph_extractor
+        self.semantic_annotator: Annotator = semantic_annotator
         self.community_extractor: CommunityExtractor = community_extractor
         self.project_exporter: List[ProjectExporter] = project_exporter
 
