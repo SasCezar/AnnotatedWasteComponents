@@ -1,5 +1,5 @@
 services:
-  pipeline:     # This is our stuff
+  waste_annotator:
     build:
       context: WasteAnnotator
       dockerfile: ./docker/Dockerfile
@@ -8,45 +8,57 @@ services:
     stdin_open: true
     tty: true
     volumes:
+      # Bind the WasteAnnotator folder to the container to allow for live changes in the code
       - type: bind
         source: ./WasteAnnotator
         target: /waste-annotator
-    links:
-      - 'api:auto-fl'
+      # Use a shared repository folder to avoid downloading the same data multiple times
+      - type: bind
+        source: ./data
+        target: /waste-annotator/data
 
-  api:
-    build:
-      context: ./AutoFL
-      dockerfile: ./docker/Dockerfile
+
+  auto-fl:
+    image: cezarsas/autofl:latest
     ports:
       - "8888:8888"
       - "8000:8000"
     stdin_open: true # docker run -i
     tty: true        # docker run -t
     volumes:
+      # Override the configuration of AutoFL
       - type: bind
-        source: ./AutoFL
-        target: /autofl
+        source: ./config/main.yaml
+        target: /autofl/config/main.yaml
+      # Use a shared repository folder to avoid downloading the same data multiple times
+      - type: bind
+        source: ./data/repository
+        target: /autofl/data/repository
+      # Bind the models folder of the container
+      - type: bind
+        source: ./data/models/
+        target: /autofl/data/models/
 
 
   # Separate database for storing component labelling.
-  db_pipeline:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_DB: "pipeline"
-      POSTGRES_USER: "pipeline_user"
-      POSTGRES_PASSWORD: "pipeline_pw"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      interval: 1s
-      timeout: 5s
-      retries: 10
-    ports:
-        - "4432:5432"
-    volumes:
-      - ./pipelinedb:/var/lib/postgresql/data
-      - ./WasteAnnotator/docker/sql:/docker-entrypoint-initdb.d/
+  # Optional, not necessarily needed. We opt to use JSON files instead.
+  #  db_pipeline:
+  #    image: postgres:16.4-bullseye
+  #    restart: always
+  #    environment:
+  #      POSTGRES_DB: "pipeline"
+  #      POSTGRES_USER: "pipeline_user"
+  #      POSTGRES_PASSWORD: "pipeline_pw"
+  #    healthcheck:
+  #      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+  #      interval: 1s
+  #      timeout: 5s
+  #      retries: 10
+  #    ports:
+  #        - "4432:5432"
+  #    volumes:
+  #      - ./database/pipelinedb:/var/lib/postgresql/data
+  #      - ./WasteAnnotator/docker/sql:/docker-entrypoint-initdb.d/
 
   db:
     image: postgres
@@ -61,29 +73,13 @@ services:
       timeout: 5s
       retries: 10
     ports:
-        - "5432:5432"
+      - "5432:5432"
     volumes:
-      - ./auto_fl_db:/var/lib/postgresql/data
-      - ./AutoFL/docker/sql:/docker-entrypoint-initdb.d/
+      - ./database/auto_fl_db:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d/ # Folder containing the SQL scripts to be executed on the database creation (copied from AutoFL repo)
 
   adminer:
     image: adminer
     restart: always
     ports:
       - "8080:8080"
-
-# ui service not necessarily needed
-#  ui:
-#    build:
-#      context: ./AutoFL/autofl-ui/
-#      dockerfile: ./docker/Dockerfile
-#    ports:
-#      - "8501:8501"
-#    stdin_open: true # docker run -i
-#    tty: true        # docker run -t
-#    volumes:
-#      - type: bind
-#        source: /AutoFL/autofl-ui/
-#        target: /AutoFL/autofl-ui
-#    links:
-#      - 'api:auto-fl'

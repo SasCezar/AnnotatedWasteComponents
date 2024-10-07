@@ -1,64 +1,79 @@
+from typing import List
 from urllib.error import HTTPError
 
 from loguru import logger
 
-from componentaggregator.componentaggregator import ComponentAggregator
-from componentannotator.componentannotator import ComponentAnnotator
-from componentextractor.componentextractor import ComponentExtractor
-from projectextractor.projectextractor import ProjectExtractor
+from annotator import Annotator
+from community import CommunityExtractor
+from exporter import ProjectExporter
+from finder import ProjectFinder
+from graphextractor.interface import GraphExtractor
 
 
 class CompletePipeline:
     """
-    The ComponentAnnotator class is responsible for annotating files in abandoned GitHub projects.
-    It utilizes the ProjectExtractor to find abandoned projects, the ComponentExtractor to run the
-    Arcan tool for component information, and the auto-fl annotator for file-level annotations (weak labels).
+    The CompletePipeline class is responsible for running the complete pipeline to annotate projects.
     """
 
     def __init__(self,
-                 project_extractor: ProjectExtractor,
-                 component_extractor: ComponentExtractor,
-                 component_annotator: ComponentAnnotator,
-                 component_aggregator: ComponentAggregator,
-                 language):
+                 project_finder: ProjectFinder,
+                 graph_extractor: GraphExtractor,
+                 semantic_annotator: Annotator,
+                 community_extractor: CommunityExtractor,
+                 project_exporter: List[ProjectExporter]
+                 ):
         """
-        Initializes the ComponentAnnotator with default values for the ProjectExtractor.
 
         Args:
-            language: The programming language used in the project.
+            project_finder:
+            graph_extractor:
+            semantic_annotator:
+            community_extractor:
+            project_exporter:
         """
-        self.project_extractor: ProjectExtractor = project_extractor
-        self.component_extractor: ComponentExtractor = component_extractor
-        self.component_annotator: ComponentAnnotator = component_annotator
-        self.component_aggregator: ComponentAggregator = component_aggregator
-        self.language: str = language
 
-        logger.info(f"Initialized ComponentAnnotator (project programming language -> {language})")
+        self.project_finder: ProjectFinder = project_finder
+        self.graph_extractor: GraphExtractor = graph_extractor
+        self.semantic_annotator: Annotator = semantic_annotator
+        self.community_extractor: CommunityExtractor = community_extractor
+        self.project_exporter: List[ProjectExporter] = project_exporter
+
+        logger.info(f"Initialized ComponentAnnotator")
 
     def run(self, num_proj: int = 10):
         abandoned_projects = []
         try:
-            abandoned_projects = self.project_extractor.find_abandoned_projects(num_proj)
+            logger.info("Starting to retrieve abandoned projects from GitHub")
+            abandoned_projects = self.project_finder.find_projects(num_proj)
             logger.info("Finished retrieving abandoned projects from GitHub")
         except HTTPError as exc:
             logger.error("Failed to retrieve abandoned projects from GitHub")
 
         for project in abandoned_projects:
-            project_name = project["name"]
-            project_url = project["html_url"]
+
             try:
-                file_annotation = self.component_annotator.annotate_project(project_name, project_url)
+                logger.info(f"Starting to extract dependency graph for project `{project.name}`")
+                project = self.graph_extractor.extract_graph(project)
+                logger.info(f"Finished extracting dependency graph for project `{project.name}`")
+
+                logger.info(f"Starting to annotate project `{project.name}`")
+                project = self.semantic_annotator.annotate_project(project)
+                logger.info(f"Finished annotating project `{project.name}`")
+
+                logger.info(f"Starting to extract community information for project `{project.name}`")
+                project = self.community_extractor.extract(project)
+                logger.info(f"Finished extracting community information for project `{project.name}`")
+
+                logger.info(f"Starting to export project `{project.name}`")
+                for exporter in self.project_exporter:
+                    logger.info(f"Exporting project `{project.name}` using {exporter.__class__.__name__}")
+                    exporter.export(project)
+                logger.info(f"Finished exporting project `{project.name}`")
 
 
-                components = self.component_extractor.set_project(project_name, project_url).infomap_components()
-                # component_extractor handles arcan failed exceptions.
-                dep_graph = self.component_extractor.dependency_graph()
-
-                self.component_aggregator.set_state(components, file_annotation, dep_graph, project_name)
-
-                # Dataframe contains component identifier and component label for each file.
-                df_components = self.component_aggregator.create_aggregate()
-                logger.info(f"Finished annotating components of project `{project_name}`")
             except RuntimeError as exc:
+                logger.error(f"{exc}")
+                continue
+            except ValueError as exc:
                 logger.error(f"{exc}")
                 continue

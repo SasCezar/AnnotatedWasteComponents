@@ -1,0 +1,15 @@
+# @package _global_
+defaults:
+  - _self_
+  - environment: docker
+  - annotator: autofl
+  - community: default
+  - exporter: json
+  - finder: github_archived_java
+  - graphextractor: arcan
+
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .

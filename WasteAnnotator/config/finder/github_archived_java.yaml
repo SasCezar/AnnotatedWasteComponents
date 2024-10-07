@@ -1,0 +1,5 @@
+_target_: finder.github.GitHubFinder
+min_stars: 100
+last_pushed_date: 2021-01-01
+language: java
+only_archived: true

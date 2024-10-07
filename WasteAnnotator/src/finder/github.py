@@ -1,0 +1,106 @@
+from typing import List, Dict, Tuple
+
+import requests
+from loguru import logger
+
+from entities.entities import Project
+
+
+def print_structure(repo_url: str):
+    """
+    Print the structure of a GitHub repository.
+
+    Args:
+        repo_url (str): The URL of the GitHub repository.
+    """
+    # Parse the GitHub repository URL to extract owner and repo name
+    _, _, _, owner, repo_name = repo_url.rstrip('/').split('/')
+    contents_url = f"https://api.github.com/repos/{owner}/{repo_name}"
+    response = requests.get(contents_url)
+
+    if response.status_code == 200:
+        contents = response.json()
+
+        # Print the structure (you can process it further as needed)
+        print("Repository Structure:")
+        print(contents)
+    else:
+        response.raise_for_status()
+
+
+class GitHubFinder(object):
+    """
+    Uses GitHub REST API to get GitHub repositories deemed abandoned.
+    """
+
+    def __init__(self, min_stars: int, last_pushed_date: str, language: str = "java",
+                 only_archived: bool = True):
+        """
+        Initializes the GitHubFinder instance.
+
+        Args:
+            min_stars (int): The minimum number of stars a repository should have to be considered.
+            last_pushed_date (str): The date until which repositories are considered for abandonment.
+            language (str, optional): The programming language of the repositories (default is "java").
+            exclude_archived (bool, optional): Flag to exclude archived repositories (default is False).
+        """
+        self.base_url = "https://api.github.com/search/repositories"
+        self.min_stars = min_stars
+        self.last_pushed_date = last_pushed_date
+        self.language = language
+        self.only_archived = only_archived
+
+        logger.info(f"Initialized GitHubFinder")
+
+    def find_projects(self, amount: int = 10) -> List[Project]:
+        """
+        Retrieves abandoned projects.
+
+        Args:
+            amount (int): The number of abandoned projects to retrieve (default is 10).
+
+        Returns:
+            List[Dict]: A list of dictionaries representing abandoned projects.
+        """
+        params, headers = self._create_request(amount)
+
+        response = requests.get(self.base_url, params=params, headers=headers)
+
+        projects = []
+        if response.status_code == 200:
+            res = response.json().get("items", [])
+            for repo in res:
+                projects.append(Project(name=repo["full_name"].replace("/", "|"), remote=repo["html_url"],
+                                        description=repo["description"],
+                                        stargazers_count=repo["stargazers_count"], language=repo["language"],
+                                        archived=repo["archived"], pushed_at=repo["pushed_at"]))
+
+        else:
+            response.raise_for_status()
+
+        return projects
+
+    def _create_request(self, amount: int) -> Tuple[Dict, Dict]:
+        """
+        Create request parameters and headers for GitHub repository search.
+
+        Args:
+            amount (int): The number of results to retrieve.
+
+        Returns:
+            Tuple[Dict, Dict]: A tuple containing request parameters and headers.
+        """
+        query = f"language:{self.language} stars:>={self.min_stars} pushed:<{self.last_pushed_date}"
+        if self.only_archived:
+            query += " archived:true"
+
+        # If above max results per page, adjust page num.
+        page_num = 1
+        if amount > 100:
+            page_num = int(amount / 100)
+
+        params = {"q": query, "per_page": amount, "page": page_num}
+        headers = {"Accept": "application/vnd.github+json",
+                   "X-GitHub-Api-Version": "2022-11-28"}
+
+        return params, headers
