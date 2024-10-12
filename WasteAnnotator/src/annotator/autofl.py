@@ -52,7 +52,7 @@ class AutoFLAnnotator(Annotator):
         logger.info(f"Retrieving and annotating components of project `{project.name}`")
 
         file_annot = self._annotate_file(project.name, project.remote,
-                                         project.language)  # Failed? Then this returns empty DataFrame.
+                                         project.language.lower())  # Failed? Then this returns empty DataFrame.
 
         if not file_annot:
             raise RuntimeError(f"AutoFL failed to annotate project {project.name}.")

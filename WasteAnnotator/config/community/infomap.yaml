@@ -1,2 +1,3 @@
 # @package community.infomap
-function: cdlib.algorithms.infomap
+_target_: cdlib.algorithms.infomap
+_partial_: true

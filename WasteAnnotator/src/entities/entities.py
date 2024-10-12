@@ -29,20 +29,25 @@ class GraphModel(BaseModel):
     Class defining a graph. Each graph has a list of nodes and a list of edges.
     It is used to represent the dependency graph of a project in a format that can be serialized.
     """
-    nodes: List[Any]
+    nodes: List[Tuple[Any, Dict[str, Any]]]
     edges: List[Tuple[Any, Any, Dict[str, Any]]]
 
     @classmethod
     def from_graph(cls, graph: nx.Graph) -> 'GraphModel':
+        # Collect nodes with their data
+        nodes_with_data = [(node, data) for node, data in graph.nodes(data=True)]
+        # Collect edges with their data
         edges_with_data = [(u, v, data) for u, v, data in graph.edges(data=True)]
         return cls(
-            nodes=list(graph.nodes),
+            nodes=nodes_with_data,
             edges=edges_with_data
         )
 
     def to_graph(self) -> nx.Graph:
         graph = nx.Graph()
-        graph.add_nodes_from(self.nodes)
+        # Add nodes along with their attributes
+        for node, data in self.nodes:
+            graph.add_node(node, **data)
         # Add edges along with their attributes
         for u, v, data in self.edges:
             graph.add_edge(u, v, **data)
@@ -64,4 +69,4 @@ class Project(BaseModel):
     pushed_at: Optional[str] = None
     files: Optional[Dict[str, File]] = None
     dep_graph: Optional[GraphModel] = None
-    communities: Optional[Dict[str, Dict[str, int]]] = None
+    communities: Optional[Dict[str, Dict[str, int]]] = {}
