@@ -1,0 +1,4 @@
+# @package community.bayan
+_target_: cdlib.algorithms.bayan
+_partial_: true
+time_allowed: 600

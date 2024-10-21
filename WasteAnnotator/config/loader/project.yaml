@@ -1,0 +1,2 @@
+_target_: loader.ProjectLoader
+projects_path: ${out_path}/annotated/

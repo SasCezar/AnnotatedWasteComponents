@@ -31,8 +31,8 @@ class CommunityExtractor:
         if not algorithms:
             logging.warning("No community detection algorithms provided. Using default Louvain algorithm.")
             algorithms = {'louvain': {'function': 'cdlib.algorithms.louvain'}}
-        self.algorithms = algorithms
-        self.force_run = force_run
+        self.algorithms: Dict[str, Callable] = algorithms
+        self.force_run: bool = force_run
 
         print(self.algorithms)
 
@@ -40,9 +40,11 @@ class CommunityExtractor:
 
     def extract(self, project: Project) -> Project:
         # Extract components/communities from the dependency graph.
+        logging.info("Extracting communities from the dependency graph")
 
         for algo in self.algorithms:
             logging.info(f"Extracting communities using {algo} algorithm")
+
             if algo in project.communities and not self.force_run:
                 logging.info(f"Communities already extracted using {algo} algorithm. Skipping.")
                 continue

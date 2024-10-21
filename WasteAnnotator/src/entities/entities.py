@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any
 
 import networkx as nx
 from pydantic import BaseModel
@@ -25,33 +25,31 @@ class File(BaseModel):
 
 
 class GraphModel(BaseModel):
-    """
-    Class defining a graph. Each graph has a list of nodes and a list of edges.
-    It is used to represent the dependency graph of a project in a format that can be serialized.
-    """
-    nodes: List[Tuple[Any, Dict[str, Any]]]
-    edges: List[Tuple[Any, Any, Dict[str, Any]]]
+    nodes: Dict[Any, Dict[str, Any]]
+    edges: List[List[Any]]  # List of [u, v, data] for edge representation
 
     @classmethod
     def from_graph(cls, graph: nx.Graph) -> 'GraphModel':
-        # Collect nodes with their data
-        nodes_with_data = [(node, data) for node, data in graph.nodes(data=True)]
-        # Collect edges with their data
-        edges_with_data = [(u, v, data) for u, v, data in graph.edges(data=True)]
+        # Collect nodes with their data as a dictionary
+        nodes_with_data = {node: data for node, data in graph.nodes(data=True)}
+        # Collect edges as a list of lists [u, v, data]
+        edges_with_data = [[u, v, data] for u, v, data in graph.edges(data=True)]
+        # file_to_node = {data['filePathRelative']: node for node, data in nodes_with_data.items()}
         return cls(
             nodes=nodes_with_data,
-            edges=edges_with_data
+            edges=edges_with_data,
         )
 
     def to_graph(self) -> nx.Graph:
         graph = nx.Graph()
-        # Add nodes along with their attributes
-        for node, data in self.nodes:
+        # Add nodes along with their attributes from the dictionary
+        for node, data in self.nodes.items():
             graph.add_node(node, **data)
-        # Add edges along with their attributes
+        # Add edges from the list of [u, v, data]
         for u, v, data in self.edges:
             graph.add_edge(u, v, **data)
         return graph
+
 
 
 class Project(BaseModel):
@@ -69,4 +67,4 @@ class Project(BaseModel):
     pushed_at: Optional[str] = None
     files: Optional[Dict[str, File]] = None
     dep_graph: Optional[GraphModel] = None
-    communities: Optional[Dict[str, Dict[str, int]]] = {}
+    communities: Optional[Dict[str, Dict[Any, int]]] = {}

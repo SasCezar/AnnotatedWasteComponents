@@ -2,5 +2,7 @@
 defaults:
   - louvain
   - infomap
+  - leiden
+  # - bayan
 
 force_run: false

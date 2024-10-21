@@ -16,6 +16,10 @@ services:
       - type: bind
         source: ./data
         target: /waste-annotator/data
+      # Optional: Bind the gurobi license to the container. Needed if using Bayan
+      - type: bind
+        source: ./secrets/gurobi.lic
+        target: /opt/gurobi/gurobi.lic
 
 
   auto-fl:
