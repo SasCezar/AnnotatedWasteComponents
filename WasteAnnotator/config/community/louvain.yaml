@@ -1,2 +1,3 @@
 # @package community.louvain
-function: cdlib.algorithms.louvain
+_target_: cdlib.algorithms.louvain
+_partial_: true

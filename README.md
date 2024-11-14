@@ -30,7 +30,8 @@ comprehensive view of the project's architecture.
 The WasteAnnotator tool consists of several key modules:
 
 - **Finder**: Retrieves projects from a repository service (currently GitHub only) based on specified criteria.
-- **GraphExtractor**: Parses the project's dependency graph to identify potential components (currently uses [Arcan](https://www.arcan.tech/)).
+- **GraphExtractor**: Parses the project's dependency graph to identify potential components (currently
+  uses [Arcan](https://www.arcan.tech/)).
 - **Annotator**: Uses semantic techniques to label and annotate components based on their file contents (currently uses
   [AutoFL](https://github.com/SasCezar/autofl)).
 - **CommunityExtractor**: Identifies communities within the component structure for further insights (via customizable
@@ -49,12 +50,13 @@ For each module new classes can be added by extending the base classes in the di
 - [Docker v4.25](https://www.docker.com/get-started) or higher for containerization.
 - [Git](https://git-scm.com/) for repository cloning.
 - (Optional) [Python 3.10](https://www.python.org/downloads/) if running the application outside of Docker.
+- (Optional) [Gurobi License](https://www.gurobi.com/) If using Bayan community detection algorithm.
 
 ### Installation
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-username/WasteAnnotator.git
+   git clone https://github.com/SasCezar/WasteAnnotator.git
    cd WasteAnnotator
    ```
 

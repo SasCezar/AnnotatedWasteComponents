@@ -1,0 +1,3 @@
+# @package community.leiden
+_target_: cdlib.algorithms.leiden
+_partial_: true

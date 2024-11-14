@@ -3,7 +3,7 @@
 # Used to override the defaults configuration of AutoFL
 defaults:
   - _self_
-  - local: docker
+  - environment: docker
   - taxonomy: gitranking
   - annotator: default
   - version_strategy: latest

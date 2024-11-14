@@ -2,11 +2,16 @@
 defaults:
   - _self_
   - environment: docker
+  - loader: project
   - annotator: autofl
   - community: default
   - exporter: json
   - finder: github_archived_java
   - graphextractor: arcan
+
+
+num_projects: 1000
+n_jobs: 6
 
 
 hydra:

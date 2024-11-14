@@ -1,4 +1,9 @@
 _target_: graphextractor.arcan.ArcanGraphExtractor
+cleaner:
+  _target_: graphcleaner.cleaner.ArcanGraphCleaner
+  edges_type_remove: ["isChildOf", "isImplementationOf", "nestedTo",
+                      "belongsTo", "implementedBy", "definedBy",
+                      "containerIsAfferentOf", "unitIsAfferentOf"]
 arcan_path: ${base_path}/src/arcan
 repository_path: ${repository_path}
 arcan_out: ${out_path}
